@@ -15,7 +15,7 @@ jobs:
   linux-macos-win:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -28,7 +28,8 @@ jobs:
         PYTHONWARNINGS=always PYTHONUNBUFFERED=1 PSUTIL_TESTING=1 PSUTIL_DEBUG=1 python {project}/psutil/tests/runner.py &&
         PYTHONWARNINGS=always PYTHONUNBUFFERED=1 PSUTIL_TESTING=1 PSUTIL_DEBUG=1 python {project}/psutil/tests/test_memleaks.py
       CIBW_TEST_EXTRAS: test
-      CIBW_SKIP: cp35-* pp*
+      CIBW_SKIP: cp36-* cp37-* pp* *musllinux*
+
     steps:
     - name: Cancel previous runs
       uses: styfle/cancel-workflow-action@0.6.0
@@ -62,33 +63,6 @@ jobs:
         python setup.py sdist
         mv dist/psutil*.tar.gz wheelhouse/
         python scripts/internal/print_hashes.py wheelhouse/
-
-  freebsd:
-    runs-on: macos-latest
-    steps:
-    - name: Cancel previous runs
-      uses: styfle/cancel-workflow-action@0.6.0
-      with:
-        access_token: ${{ github.token }}
-
-    - uses: actions/checkout@v2
-
-    - name: Run tests
-      id: test
-      uses: vmactions/freebsd-vm@v0.0.8
-      with:
-        usesh: true
-        prepare: pkg install -y gcc python3
-        run: |
-          set +e
-          export \
-            PYTHONWARNINGS=always \
-            PSUTIL_TESTING=1 \
-            PSUTIL_DEBUG=1
-          python3 -m pip install --user setuptools
-          python3 setup.py install
-          python3 psutil/tests/runner.py
-          python3 psutil/tests/test_memleaks.py
 
   linters:
     runs-on: ubuntu-latest

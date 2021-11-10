@@ -333,7 +333,7 @@ else:
 
 def main():
     kwargs = dict(
-        name='psutil',
+        name='psutil-wheels',
         version=VERSION,
         description=__doc__ .replace('\n', ' ').strip() if __doc__ else '',
         long_description=get_description(),
